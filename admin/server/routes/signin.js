@@ -3,7 +3,7 @@ var path = require('path');
 
 var templatePath = path.resolve(__dirname, '../templates/signin.html');
 
-module.exports = function SigninRoute (req, res) {
+module.exports = function SigninRoute(req, res) {
 	var keystone = req.keystone;
 	var UserList = keystone.list(keystone.get('user model'));
 	var locals = {
@@ -18,6 +18,10 @@ module.exports = function SigninRoute (req, res) {
 		} : undefined,
 		userCanAccessKeystone: !!(req.user && req.user.canAccessKeystone),
 	};
+
+	// REDIRECT AFTER LOGIN WITHOUT PERMISSION TO KEYSTONE
+	if (!locals.userCanAccessKeystone) locals.redirect = "/"
+
 	locals.csrf.header[keystone.security.csrf.CSRF_HEADER_KEY] = keystone.security.csrf.getToken(req, res);
 	ejs.renderFile(templatePath, locals, { delimiter: '%' }, function (err, str) {
 		if (err) {
