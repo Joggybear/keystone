@@ -33,7 +33,9 @@ const App = (props) => {
 		currentList = listsByPath[props.params.listId];
 		// If we're on a list path that doesn't exist (e.g. /keystone/gibberishasfw34afsd) this will
 		// be undefined
-		if (!currentList) {
+
+		// MAKE USER LIST RESTRICTIONS
+		if (!currentList || (currentList.key === 'User' && !Keystone.user.canAccessUsers)) {
 			children = (
 				<Container>
 					<p>List not found!</p>

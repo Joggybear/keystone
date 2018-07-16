@@ -4,7 +4,7 @@ var path = require('path');
 
 var templatePath = path.resolve(__dirname, '../templates/index.html');
 
-module.exports = function IndexRoute (req, res) {
+module.exports = function IndexRoute(req, res) {
 	var keystone = req.keystone;
 	var lists = {};
 	_.forEach(keystone.lists, function (list, key) {
@@ -37,22 +37,27 @@ module.exports = function IndexRoute (req, res) {
 		signoutUrl: keystone.get('signout url'),
 		user: {
 			id: req.user.id,
+			// MAKE USER LIST RESTRICTIONS
+			canAccessUsers: req.user.isSuperAdmin,
+
 			name: UserList.getDocumentName(req.user) || '(no name)',
 		},
 		userList: UserList.key,
 		version: keystone.version,
-		wysiwyg: { options: {
-			enableImages: keystone.get('wysiwyg images') ? true : false,
-			enableCloudinaryUploads: keystone.get('wysiwyg cloudinary images') ? true : false,
-			enableS3Uploads: keystone.get('wysiwyg s3 images') ? true : false,
-			additionalButtons: keystone.get('wysiwyg additional buttons') || '',
-			additionalPlugins: keystone.get('wysiwyg additional plugins') || '',
-			additionalOptions: keystone.get('wysiwyg additional options') || {},
-			overrideToolbar: keystone.get('wysiwyg override toolbar'),
-			skin: keystone.get('wysiwyg skin') || 'keystone',
-			menubar: keystone.get('wysiwyg menubar'),
-			importcss: keystone.get('wysiwyg importcss') || '',
-		} },
+		wysiwyg: {
+			options: {
+				enableImages: keystone.get('wysiwyg images') ? true : false,
+				enableCloudinaryUploads: keystone.get('wysiwyg cloudinary images') ? true : false,
+				enableS3Uploads: keystone.get('wysiwyg s3 images') ? true : false,
+				additionalButtons: keystone.get('wysiwyg additional buttons') || '',
+				additionalPlugins: keystone.get('wysiwyg additional plugins') || '',
+				additionalOptions: keystone.get('wysiwyg additional options') || {},
+				overrideToolbar: keystone.get('wysiwyg override toolbar'),
+				skin: keystone.get('wysiwyg skin') || 'keystone',
+				menubar: keystone.get('wysiwyg menubar'),
+				importcss: keystone.get('wysiwyg importcss') || '',
+			}
+		},
 	};
 	keystoneData.csrf.header[keystone.security.csrf.CSRF_HEADER_KEY] = keystone.security.csrf.getToken(req, res);
 

@@ -6,7 +6,7 @@ import { plural } from '../../../../utils/string';
 import ListTile from './ListTile';
 
 export class Lists extends React.Component {
-	render () {
+	render() {
 		return (
 			<div className="dashboard-group__lists">
 				{_.map(this.props.lists, (list, key) => {
@@ -16,6 +16,10 @@ export class Lists extends React.Component {
 					const href = list.external ? list.path : `${Keystone.adminPath}/${list.path}`;
 					const listData = this.props.listsData[list.path];
 					const isNoCreate = listData ? listData.nocreate : false;
+
+					// MAKE USER LIST RESTRICTIONS
+					if (list.key === 'User' && !Keystone.user.canAccessUsers) return null;
+
 					return (
 						<ListTile
 							key={list.path}
