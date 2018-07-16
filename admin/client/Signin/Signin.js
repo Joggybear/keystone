@@ -13,7 +13,7 @@ import UserInfo from './components/UserInfo';
 import LoginForm from './components/LoginForm';
 
 var SigninView = React.createClass({
-	getInitialState () {
+	getInitialState() {
 		return {
 			email: '',
 			password: '',
@@ -23,19 +23,19 @@ var SigninView = React.createClass({
 			signedOut: window.location.search === '?signedout',
 		};
 	},
-	componentDidMount () {
+	componentDidMount() {
 		// Focus the email field when we're mounted
 		if (this.refs.email) {
 			this.refs.email.select();
 		}
 	},
-	handleInputChange (e) {
+	handleInputChange(e) {
 		// Set the new state when the input changes
 		const newState = {};
 		newState[e.target.name] = e.target.value;
 		this.setState(newState);
 	},
-	handleSubmit (e) {
+	handleSubmit(e) {
 		e.preventDefault();
 		// If either password or mail are missing, show an error
 		if (!this.state.email || !this.state.password) {
@@ -57,7 +57,10 @@ var SigninView = React.createClass({
 					: this.displayError('The email and password you entered are not valid.');
 			} else {
 				// Redirect to where we came from or to the default admin path
-				if (Keystone.redirect) {
+				// REDIRECT AFTER LOGIN WITHOUT PERMISSION TO KEYSTONE
+				if (!body.user.isAdmin) {
+					top.location.href = '/'
+				} else if (Keystone.redirect) {
 					top.location.href = Keystone.redirect;
 				} else {
 					top.location.href = this.props.from ? this.props.from : Keystone.adminPath;
@@ -70,7 +73,7 @@ var SigninView = React.createClass({
 	 *
 	 * @param  {String} message The message you want to show
 	 */
-	displayError (message) {
+	displayError(message) {
 		this.setState({
 			isAnimating: true,
 			isInvalid: true,
@@ -79,7 +82,7 @@ var SigninView = React.createClass({
 		setTimeout(this.finishAnimation, 750);
 	},
 	// Finish the animation and select the email field
-	finishAnimation () {
+	finishAnimation() {
 		// TODO isMounted was deprecated, find out if we need this guard
 		if (!this.isMounted()) return;
 		if (this.refs.email) {
@@ -89,7 +92,7 @@ var SigninView = React.createClass({
 			isAnimating: false,
 		});
 	},
-	render () {
+	render() {
 		const boxClassname = classnames('auth-box', {
 			'auth-box--has-errors': this.state.isAnimating,
 		});
@@ -115,14 +118,14 @@ var SigninView = React.createClass({
 								userName={this.props.user.name}
 							/>
 						) : (
-							<LoginForm
-								email={this.state.email}
-								handleInputChange={this.handleInputChange}
-								handleSubmit={this.handleSubmit}
-								isAnimating={this.state.isAnimating}
-								password={this.state.password}
-							/>
-						)}
+								<LoginForm
+									email={this.state.email}
+									handleInputChange={this.handleInputChange}
+									handleSubmit={this.handleSubmit}
+									isAnimating={this.state.isAnimating}
+									password={this.state.password}
+								/>
+							)}
 					</div>
 				</div>
 				<div className="auth-footer">

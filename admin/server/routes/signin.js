@@ -19,9 +19,6 @@ module.exports = function SigninRoute(req, res) {
 		userCanAccessKeystone: !!(req.user && req.user.canAccessKeystone),
 	};
 
-	// REDIRECT AFTER LOGIN WITHOUT PERMISSION TO KEYSTONE
-	if (!locals.userCanAccessKeystone) locals.redirect = "/"
-
 	locals.csrf.header[keystone.security.csrf.CSRF_HEADER_KEY] = keystone.security.csrf.getToken(req, res);
 	ejs.renderFile(templatePath, locals, { delimiter: '%' }, function (err, str) {
 		if (err) {
