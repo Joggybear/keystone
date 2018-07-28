@@ -18,7 +18,13 @@ export class Lists extends React.Component {
 					const isNoCreate = listData ? listData.nocreate : false;
 
 					// MAKE USER LIST RESTRICTIONS
-					if (list.key === 'User' && !Keystone.user.canAccessUsers) return null;
+					if (list.key === 'User' && !Keystone.user.canAccessUsers) {
+						return null;
+					} else if (list.key === 'Marketing' && !Keystone.user.canAccessMarketing) {
+						return null;
+					} else if (!Keystone.user.canAccessUsers && !Keystone.user.canAccessManagement && list.key !== 'Marketing' && list.key !== 'User') {
+						return null;
+					}
 
 					return (
 						<ListTile

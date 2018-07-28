@@ -38,7 +38,9 @@ module.exports = function IndexRoute(req, res) {
 		user: {
 			id: req.user.id,
 			// MAKE USER LIST RESTRICTIONS
+			canAccessManagement: req.user.isNormalAdmin,
 			canAccessUsers: req.user.isSuperAdmin,
+			canAccessMarketing: req.user.isMarketing,
 
 			name: UserList.getDocumentName(req.user) || '(no name)',
 		},
