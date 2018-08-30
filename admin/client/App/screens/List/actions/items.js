@@ -5,7 +5,7 @@ import {
 } from '../constants';
 
 import { NETWORK_ERROR_RETRY_DELAY } from '../../../../constants';
-export function loadItems (options = {}) {
+export function loadItems(options = {}) {
 	return (dispatch, getState) => {
 		let currentLoadCounter = getState().lists.loadCounter + 1;
 
@@ -18,7 +18,6 @@ export function loadItems (options = {}) {
 		const state = getState();
 		// Hold a reference to the currentList in state.
 		const currentList = state.lists.currentList;
-
 		currentList.loadItems({
 			search: state.active.search,
 			filters: state.active.filters,
@@ -68,7 +67,7 @@ export function loadItems (options = {}) {
 	};
 }
 
-export function downloadItems (format, columns) {
+export function downloadItems(format, columns) {
 	return (dispatch, getState) => {
 		const state = getState();
 		const active = state.active;
@@ -84,7 +83,7 @@ export function downloadItems (format, columns) {
 	};
 }
 
-export function itemsLoaded (items) {
+export function itemsLoaded(items) {
 	return {
 		type: ITEMS_LOADED,
 		items,
@@ -96,7 +95,7 @@ export function itemsLoaded (items) {
  * loadItems after NETWORK_ERROR_RETRY_DELAY milliseconds until we get items back
  */
 
-export function itemLoadingError () {
+export function itemLoadingError() {
 	return (dispatch) => {
 		dispatch({
 			type: ITEM_LOADING_ERROR,
@@ -108,7 +107,7 @@ export function itemLoadingError () {
 	};
 }
 
-export function deleteItems (ids) {
+export function deleteItems(ids) {
 	return (dispatch, getState) => {
 		const list = getState().lists.currentList;
 		list.deleteItems(ids, (err, data) => {

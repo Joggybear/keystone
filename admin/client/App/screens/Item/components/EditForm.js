@@ -26,7 +26,7 @@ import { deleteItem } from '../actions';
 
 import { upcase } from '../../../../utils/string';
 
-function getNameFromData (data) {
+function getNameFromData(data) {
 	if (typeof data === 'object') {
 		if (typeof data.first === 'string' && typeof data.last === 'string') {
 			return data.first + ' ' + data.last;
@@ -37,7 +37,7 @@ function getNameFromData (data) {
 	return data;
 }
 
-function smoothScrollTop () {
+function smoothScrollTop() {
 	var position = window.scrollY || window.pageYOffset;
 	var speed = position / 10;
 
@@ -57,7 +57,7 @@ var EditForm = React.createClass({
 		data: React.PropTypes.object,
 		list: React.PropTypes.object,
 	},
-	getInitialState () {
+	getInitialState() {
 		return {
 			values: assign({}, this.props.data.fields),
 			confirmationDialog: null,
@@ -66,13 +66,13 @@ var EditForm = React.createClass({
 			focusFirstField: !this.props.list.nameField && !this.props.list.nameFieldIsFormHeader,
 		};
 	},
-	componentDidMount () {
+	componentDidMount() {
 		this.__isMounted = true;
 	},
-	componentWillUnmount () {
+	componentWillUnmount() {
 		this.__isMounted = false;
 	},
-	getFieldProps (field) {
+	getFieldProps(field) {
 		const props = assign({}, field);
 		const alerts = this.state.alerts;
 		// Display validation errors inline
@@ -90,43 +90,43 @@ var EditForm = React.createClass({
 		props.mode = 'edit';
 		return props;
 	},
-	handleChange (event) {
+	handleChange(event) {
 		const values = assign({}, this.state.values);
 
 		values[event.path] = event.value;
 		this.setState({ values });
 	},
 
-	toggleDeleteDialog () {
+	toggleDeleteDialog() {
 		this.setState({
 			deleteDialogIsOpen: !this.state.deleteDialogIsOpen,
 		});
 	},
-	toggleResetDialog () {
+	toggleResetDialog() {
 		this.setState({
 			resetDialogIsOpen: !this.state.resetDialogIsOpen,
 		});
 	},
-	handleReset () {
+	handleReset() {
 		this.setState({
 			values: assign({}, this.state.lastValues || this.props.data.fields),
 			resetDialogIsOpen: false,
 		});
 	},
-	handleDelete () {
+	handleDelete() {
 		const { data } = this.props;
 		this.props.dispatch(deleteItem(data.id, this.props.router));
 	},
-	handleKeyFocus () {
+	handleKeyFocus() {
 		const input = this.refs.keyOrIdInput;
 		input.select();
 	},
-	removeConfirmationDialog () {
+	removeConfirmationDialog() {
 		this.setState({
 			confirmationDialog: null,
 		});
 	},
-	updateItem () {
+	updateItem() {
 		const { data, list } = this.props;
 		const editForm = this.refs.editForm;
 
@@ -172,7 +172,55 @@ var EditForm = React.createClass({
 			}
 		});
 	},
-	renderKeyOrId () {
+	// MAKE SAVE AND EXIT
+	updateItemAndExit() {
+		const { data, list } = this.props;
+		const editForm = this.refs.editForm;
+		console.log('THIS UPDATE = ', this);
+		// Fix for Safari where XHR form submission fails when input[type=file] is empty
+		// https://stackoverflow.com/questions/49614091/safari-11-1-ajax-xhr-form-submission-fails-when-inputtype-file-is-empty
+		$(editForm).find("input[type='file']").each(function () {
+			if ($(this).get(0).files.length === 0) { $(this).prop('disabled', true); }
+		});
+
+		const formData = new FormData(editForm);
+
+		$(editForm).find("input[type='file']").each(function () {
+			if ($(this).get(0).files.length === 0) { $(this).prop('disabled', false); }
+		});
+
+		// Show loading indicator
+		this.setState({
+			loading: true,
+		});
+
+		list.updateItem(data.id, formData, (err, data) => {
+			smoothScrollTop();
+			if (err) {
+				this.setState({
+					alerts: {
+						error: err,
+					},
+					loading: false,
+				});
+			} else {
+				// Success, display success flash messages, replace values
+				// TODO: Update key value
+				this.setState({
+					alerts: {
+						success: {
+							success: 'Your changes have been saved successfully',
+						},
+					},
+					lastValues: this.state.values,
+					values: data.fields,
+					loading: false,
+				});
+				this.props.router.goBack();
+			}
+		});
+	},
+	renderKeyOrId() {
 		var className = 'EditForm__key-or-id';
 		var list = this.props.list;
 
@@ -211,7 +259,7 @@ var EditForm = React.createClass({
 			);
 		}
 	},
-	renderNameField () {
+	renderNameField() {
 		var nameField = this.props.list.nameField;
 		var nameFieldIsFormHeader = this.props.list.nameFieldIsFormHeader;
 		var wrapNameField = field => (
@@ -238,7 +286,7 @@ var EditForm = React.createClass({
 			);
 		}
 	},
-	renderFormElements () {
+	renderFormElements() {
 		var headings = 0;
 
 		return this.props.list.uiElements.map((el, index) => {
@@ -271,14 +319,18 @@ var EditForm = React.createClass({
 			}
 		}, this);
 	},
-	renderFooterBar () {
+	renderFooterBar() {
 		if (this.props.list.noedit && this.props.list.nodelete) {
 			return null;
 		}
 
 		const { loading } = this.state;
 		const loadingButtonText = loading ? 'Saving' : 'Save';
-
+		// MAKE SAVE AND EXIT
+		const loadingButtonText2 = loading ? 'Saving' : 'Save & exit';
+		const secondButtonStyle = {}
+		secondButtonStyle.marginLeft = '4px';
+		secondButtonStyle.marginRight = '4px';
 		// Padding must be applied inline so the FooterBar can determine its
 		// innerHeight at runtime. Aphrodite's styling comes later...
 
@@ -294,6 +346,18 @@ var EditForm = React.createClass({
 							data-button="update"
 						>
 							{loadingButtonText}
+						</LoadingButton>
+					)}
+					{!this.props.list.noedit && (
+						<LoadingButton
+							style={secondButtonStyle}
+							color="primary"
+							disabled={loading}
+							loading={loading}
+							onClick={this.updateItemAndExit}
+							data-button="update"
+						>
+							{loadingButtonText2}
 						</LoadingButton>
 					)}
 					{!this.props.list.noedit && (
@@ -316,7 +380,7 @@ var EditForm = React.createClass({
 			</FooterBar>
 		);
 	},
-	renderTrackingMeta () {
+	renderTrackingMeta() {
 		// TODO: These fields are visible now, so we don't want this. We may revisit
 		// it when we have more granular control over hiding fields in certain
 		// contexts, so I'm leaving this code here as a reference for now - JW
@@ -384,7 +448,7 @@ var EditForm = React.createClass({
 			</div>
 		) : null;
 	},
-	render () {
+	render() {
 		return (
 			<form ref="editForm" className="EditForm-container">
 				{(this.state.alerts) ? <AlertMessages alerts={this.state.alerts} /> : null}
