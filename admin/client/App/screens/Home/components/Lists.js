@@ -15,12 +15,10 @@ export class Lists extends React.Component {
 					const listKey = list.key || key;
 					const href = list.external ? list.path : `${Keystone.adminPath}/${list.path}`;
 					const listData = this.props.listsData[list.path];
-					const isNoCreate = listData ? listData.nocreate : false;
+					const isNoCreate = list.key === 'User' && !Keystone.user.canAccessUsers ? true : listData ? listData.nocreate : false;
 
 					// MAKE USER LIST RESTRICTIONS
-					if (list.key === 'User' && !Keystone.user.canAccessUsers) {
-						return null;
-					} else if (list.key === 'Marketing' && !Keystone.user.canAccessMarketing) {
+					if (list.key === 'Marketing' && !Keystone.user.canAccessMarketing) {
 						return null;
 					} else if (!Keystone.user.canAccessUsers && !Keystone.user.canAccessManagement && list.key !== 'Marketing' && list.key !== 'User') {
 						return null;

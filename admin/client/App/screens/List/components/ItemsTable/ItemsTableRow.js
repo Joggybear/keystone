@@ -27,7 +27,7 @@ const ItemsRow = React.createClass({
 		connectDropTarget: React.PropTypes.func,  // eslint-disable-line react/sort-prop-types
 		connectDragPreview: React.PropTypes.func, // eslint-disable-line react/sort-prop-types
 	},
-	renderRow (item) {
+	renderRow(item) {
 		const itemId = item.id;
 		const rowClassname = classnames({
 			'ItemList__row--dragging': this.props.isDragging,
@@ -49,12 +49,16 @@ const ItemsRow = React.createClass({
 		}
 
 		// add delete/check icon when applicable
-		if (!this.props.list.nodelete) {
+		let isNoDelete = this.props.list.nodelete;
+		if (this.props.list.key === 'User' && !Keystone.user.canAccessUsers) {
+			isNoDelete = true;
+		}
+		if (!isNoDelete) {
 			cells.unshift(this.props.manageMode ? (
 				<ListControl key="_check" type="check" active={this.props.checkedItems[itemId]} />
 			) : (
-				<ListControl key="_delete" onClick={(e) => this.props.deleteTableItem(item, e)} type="delete" />
-			));
+					<ListControl key="_delete" onClick={(e) => this.props.deleteTableItem(item, e)} type="delete" />
+				));
 		}
 
 		var addRow = (<tr key={'i' + item.id} onClick={this.props.manageMode ? (e) => this.props.checkTableItem(item, e) : null} className={rowClassname}>{cells}</tr>);
@@ -69,7 +73,7 @@ const ItemsRow = React.createClass({
 			return (addRow);
 		}
 	},
-	render () {
+	render() {
 		return this.renderRow(this.props.item);
 	},
 });
@@ -82,12 +86,12 @@ module.exports = exports = ItemsRow;
  * Implements drag source.
  */
 const dragItem = {
-	beginDrag (props) {
+	beginDrag(props) {
 		const send = { ...props };
 		props.dispatch(setDragBase(props.item, props.index));
 		return { ...send };
 	},
-	endDrag (props, monitor, component) {
+	endDrag(props, monitor, component) {
 		if (!monitor.didDrop()) {
 			props.dispatch(resetItems(props.id));
 			return;
@@ -116,10 +120,10 @@ const dragItem = {
  * Implements drag target.
  */
 const dropItem = {
-	drop (props, monitor, component) {
+	drop(props, monitor, component) {
 		return { ...props };
 	},
-	hover (props, monitor, component) {
+	hover(props, monitor, component) {
 		// reset row alerts
 		if (props.rowAlert.success || props.rowAlert.fail) {
 			props.dispatch(setRowAlert({
@@ -143,7 +147,7 @@ const dropItem = {
 /**
  * Specifies the props to inject into your component.
  */
-function dragProps (connect, monitor) {
+function dragProps(connect, monitor) {
 	return {
 		connectDragSource: connect.dragSource(),
 		isDragging: monitor.isDragging(),
@@ -151,7 +155,7 @@ function dragProps (connect, monitor) {
 	};
 }
 
-function dropProps (connect) {
+function dropProps(connect) {
 	return {
 		connectDropTarget: connect.dropTarget(),
 	};

@@ -35,7 +35,7 @@ const App = (props) => {
 		// be undefined
 
 		// MAKE USER LIST RESTRICTIONS
-		if (!currentList || (currentList.key === 'User' && !Keystone.user.canAccessUsers) || (currentList.key === 'Marketing' && !Keystone.user.canAccessMarketing) || (!Keystone.user.canAccessUsers && !Keystone.user.canAccessManagement && currentList.key !== 'Marketing' && currentList.key !== 'User')) {
+		if (!currentList || (currentList.key === 'Marketing' && !Keystone.user.canAccessMarketing) || (!Keystone.user.canAccessUsers && !Keystone.user.canAccessManagement && currentList.key !== 'Marketing' && currentList.key !== 'User')) {
 			children = (
 				<Container>
 					<p>List not found!</p>

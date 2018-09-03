@@ -17,13 +17,17 @@ const ItemsTable = React.createClass({
 		manageMode: PropTypes.bool.isRequired,
 		rowAlert: PropTypes.object.isRequired,
 	},
-	renderCols () {
+	renderCols() {
 		let cols = this.props.columns.map(col => (
 			<col key={col.path} width={col.width} />
 		));
 
+		let isNoDelete = this.props.list.nodelete;
+		if (this.props.list.key === 'User' && !Keystone.user.canAccessUsers) {
+			isNoDelete = true;
+		}
 		// add delete col when available
-		if (!this.props.list.nodelete) {
+		if (!isNoDelete) {
 			cols.unshift(
 				<col width={TABLE_CONTROL_COLUMN_WIDTH} key="delete" />
 			);
@@ -42,11 +46,15 @@ const ItemsTable = React.createClass({
 			</colgroup>
 		);
 	},
-	renderHeaders () {
+	renderHeaders() {
 		let listControlCount = 0;
 
+		let isNoDelete = this.props.list.nodelete;
+		if (this.props.list.key === 'User' && !Keystone.user.canAccessUsers) {
+			isNoDelete = true;
+		}
 		if (this.props.list.sortable) listControlCount++;
-		if (!this.props.list.nodelete) listControlCount++;
+		if (!isNoDelete) listControlCount++;
 
 		// set active sort
 		const activeSortPath = this.props.activeSort.paths[0];
@@ -93,28 +101,28 @@ const ItemsTable = React.createClass({
 			</thead>
 		);
 	},
-	render () {
+	render() {
 		const { items } = this.props;
 		if (!items.results.length) return null;
 
 		const tableBody = (this.props.list.sortable) ? (
 			<DragDrop {...this.props} />
 		) : (
-			<tbody >
-				{items.results.map((item, i) => {
-					return (
-						<TableRow key={item.id}
-							deleteTableItem={this.props.deleteTableItem}
-							index={i}
-							sortOrder={item.sortOrder || 0}
-							id={item.id}
-							item={item}
-							{...this.props}
-						/>
-					);
-				})}
-			</tbody>
-		);
+				<tbody >
+					{items.results.map((item, i) => {
+						return (
+							<TableRow key={item.id}
+								deleteTableItem={this.props.deleteTableItem}
+								index={i}
+								sortOrder={item.sortOrder || 0}
+								id={item.id}
+								item={item}
+								{...this.props}
+							/>
+						);
+					})}
+				</tbody>
+			);
 
 		return (
 			<div className="ItemList-wrapper">

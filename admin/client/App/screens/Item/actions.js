@@ -17,7 +17,7 @@ import {
  *
  * @param  {String} itemId The item ID
  */
-export function selectItem (itemId) {
+export function selectItem(itemId) {
 	return {
 		type: SELECT_ITEM,
 		id: itemId,
@@ -27,7 +27,7 @@ export function selectItem (itemId) {
 /**
  * Load the item data of the current item
  */
-export function loadItemData () {
+export function loadItemData() {
 	return (dispatch, getState) => {
 		// Hold on to the id of the item we currently want to load.
 		// Dispatch this reference to our redux store to hold on to as a 'loadingRef'.
@@ -40,28 +40,42 @@ export function loadItemData () {
 
 		// const itemID = state.item.id;
 		// Load a specific item with the utils/List.js helper
-		list.loadItem(state.item.id, { drilldown: true }, (err, itemData) => {
-
-			// Once this async request has fired this callback, check that
-			// the item id referenced by thisLoadRef is the same id
-			// referenced by loadingRef in the redux store.
-
-			// If it is, then this is the latest request, and it is safe to resolve it normally.
-			// If it is not the same id however,
-			// this means that this request is NOT the latest fired request,
-			// and so we'll bail out of it early.
-
-			if (getState().item.id !== currentItemID) return;
-			if (err || !itemData) {
-				dispatch(dataLoadingError(err));
-			} else {
-				dispatch(dataLoaded(itemData));
+		if (list.key === 'User' && !Keystone.user.canAccessUsers && Keystone.user.id !== state.item.id) {
+			let error = {
+				detail: {
+					kind: 'ObjectId',
+					message: 'Cast to ObjectId failed for value "' + state.item.id + '" at path "_id" for model "User"',
+					name: 'CastError',
+					path: '_id',
+					stringValue: '"' + state.item.id + '"',
+					value: state.item.id
+				},
+				err: 'database error'
 			}
-		});
-	};
+			dispatch(dataLoadingError(error));
+		} else {
+			list.loadItem(state.item.id, { drilldown: true }, (err, itemData) => {
+				// Once this async request has fired this callback, check that
+				// the item id referenced by thisLoadRef is the same id
+				// referenced by loadingRef in the redux store.
+
+				// If it is, then this is the latest request, and it is safe to resolve it normally.
+				// If it is not the same id however,
+				// this means that this request is NOT the latest fired request,
+				// and so we'll bail out of it early.
+
+				if (getState().item.id !== currentItemID) return;
+				if (err || !itemData) {
+					dispatch(dataLoadingError(err));
+				} else {
+					dispatch(dataLoaded(itemData));
+				}
+			});
+		};
+	}
 }
 
-export function loadRelationshipItemData ({ columns, refList, relationship, relatedItemId }) {
+export function loadRelationshipItemData({ columns, refList, relationship, relatedItemId }) {
 	return (dispatch, getState) => {
 		refList.loadItems({
 			columns: columns,
@@ -83,7 +97,7 @@ export function loadRelationshipItemData ({ columns, refList, relationship, rela
  *
  * @param  {Object} data The item data
  */
-export function dataLoaded (data) {
+export function dataLoaded(data) {
 	return {
 		type: DATA_LOADING_SUCCESS,
 		loadingRef: null,
@@ -91,7 +105,7 @@ export function dataLoaded (data) {
 	};
 }
 
-export function relationshipDataLoaded (path, data) {
+export function relationshipDataLoaded(path, data) {
 	return {
 		type: LOAD_RELATIONSHIP_DATA,
 		relationshipPath: path,
@@ -105,7 +119,7 @@ export function relationshipDataLoaded (path, data) {
  *
  * @param  {Object} error The error
  */
-export function dataLoadingError (err) {
+export function dataLoadingError(err) {
 	return {
 		type: DATA_LOADING_ERROR,
 		loadingRef: null,
@@ -120,7 +134,7 @@ export function dataLoadingError (err) {
  * @param  {Object} router A react-router router object. If this is passed, we
  *                         redirect to Keystone.adminPath/currentList.path!
  */
-export function deleteItem (id, router) {
+export function deleteItem(id, router) {
 	return (dispatch, getState) => {
 		const state = getState();
 		const list = state.lists.currentList;
@@ -144,7 +158,7 @@ export function deleteItem (id, router) {
 	};
 }
 
-export function reorderItems ({ columns, refList, relationship, relatedItemId, item, prevSortOrder, newSortOrder }) {
+export function reorderItems({ columns, refList, relationship, relatedItemId, item, prevSortOrder, newSortOrder }) {
 	return (dispatch, getState) => {
 		// Send the item, previous sortOrder and the new sortOrder
 		// we should get the proper list and new page results in return
@@ -177,7 +191,7 @@ export function reorderItems ({ columns, refList, relationship, relatedItemId, i
 	};
 }
 
-export function moveItem ({ prevIndex, newIndex, relationshipPath, newSortOrder }) {
+export function moveItem({ prevIndex, newIndex, relationshipPath, newSortOrder }) {
 	return {
 		type: DRAG_MOVE_ITEM,
 		prevIndex,
@@ -187,7 +201,7 @@ export function moveItem ({ prevIndex, newIndex, relationshipPath, newSortOrder 
 	};
 }
 
-export function resetItems () {
+export function resetItems() {
 	return {
 		type: DRAG_RESET_ITEMS,
 	};

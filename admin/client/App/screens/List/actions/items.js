@@ -8,7 +8,6 @@ import { NETWORK_ERROR_RETRY_DELAY } from '../../../../constants';
 export function loadItems(options = {}) {
 	return (dispatch, getState) => {
 		let currentLoadCounter = getState().lists.loadCounter + 1;
-
 		dispatch({
 			type: LOAD_ITEMS,
 			loadCounter: currentLoadCounter,
@@ -18,8 +17,9 @@ export function loadItems(options = {}) {
 		const state = getState();
 		// Hold a reference to the currentList in state.
 		const currentList = state.lists.currentList;
+
 		currentList.loadItems({
-			search: state.active.search,
+			search: currentList.key === 'User' && !Keystone.user.canAccessUsers ? Keystone.user.id : state.active.search,
 			filters: state.active.filters,
 			sort: state.active.sort,
 			columns: state.active.columns,
@@ -31,7 +31,6 @@ export function loadItems(options = {}) {
 			// If they are the same, then this is the latest fetch request, we may resolve this normally.
 			// If these are not the same, then it means that this is not the latest fetch request.
 			// BAIL OUT!
-
 			if (getState().active.id !== currentList.id) return;
 			if (getState().lists.loadCounter > currentLoadCounter) return;
 			if (items) {
@@ -73,7 +72,7 @@ export function downloadItems(format, columns) {
 		const active = state.active;
 		const currentList = state.lists.currentList;
 		const url = currentList.getDownloadURL({
-			search: active.search,
+			search: currentList.key === 'User' && !Keystone.user.canAccessUsers ? Keystone.user.id : active.search,
 			filters: active.filters,
 			sort: active.sort,
 			columns: columns ? currentList.expandColumns(columns) : active.columns,

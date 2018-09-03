@@ -176,7 +176,6 @@ var EditForm = React.createClass({
 	updateItemAndExit() {
 		const { data, list } = this.props;
 		const editForm = this.refs.editForm;
-		console.log('THIS UPDATE = ', this);
 		// Fix for Safari where XHR form submission fails when input[type=file] is empty
 		// https://stackoverflow.com/questions/49614091/safari-11-1-ajax-xhr-form-submission-fails-when-inputtype-file-is-empty
 		$(editForm).find("input[type='file']").each(function () {
@@ -288,8 +287,14 @@ var EditForm = React.createClass({
 	},
 	renderFormElements() {
 		var headings = 0;
-
 		return this.props.list.uiElements.map((el, index) => {
+			if (this.props.list.key === 'User' && !Keystone.user.canAccessUsers) {
+				if (el.content === 'Permissions') return;
+				if (el.field === 'isAdmin') return;
+				if (el.field === 'isNormalAdmin') return;
+				if (el.field === 'isSuperAdmin') return;
+				if (el.field === 'isMarketing') return;
+			}
 			// Don't render the name field if it is the header since it'll be rendered in BIG above
 			// the list. (see renderNameField method, this is the reverse check of the one it does)
 			if (
@@ -334,6 +339,10 @@ var EditForm = React.createClass({
 		// Padding must be applied inline so the FooterBar can determine its
 		// innerHeight at runtime. Aphrodite's styling comes later...
 
+		let isNoDelete = this.props.list.nodelete;
+		if (this.props.list.key === 'User' && !Keystone.user.canAccessUsers) {
+			isNoDelete = true;
+		}
 		return (
 			<FooterBar style={styles.footerbar}>
 				<div style={styles.footerbarInner}>
@@ -368,7 +377,7 @@ var EditForm = React.createClass({
 							/>
 						</Button>
 					)}
-					{!this.props.list.nodelete && (
+					{!isNoDelete && (
 						<Button disabled={loading} onClick={this.toggleDeleteDialog} variant="link" color="delete" style={styles.deleteButton} data-button="delete">
 							<ResponsiveText
 								hiddenXS={`delete ${this.props.list.singular.toLowerCase()}`}

@@ -7,7 +7,7 @@ import {
 	Spinner,
 } from '../../../elemental';
 
-function ListManagement ({
+function ListManagement({
 	checkedItemCount,
 	handleDelete,
 	handleSelect,
@@ -51,7 +51,7 @@ function ListManagement ({
 				active={allVisibleButtonIsActive}
 				onClick={() => handleSelect('all')}
 				title="Select all rows (including those not visible)">
-				{selectAllItemsLoading ? <Spinner/> : 'All'} <small style={buttonNoteStyles}>({itemCount})</small>
+				{selectAllItemsLoading ? <Spinner /> : 'All'} <small style={buttonNoteStyles}>({itemCount})</small>
 			</Button>
 		</Section>
 	);

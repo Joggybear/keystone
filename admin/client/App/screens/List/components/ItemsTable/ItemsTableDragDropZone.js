@@ -16,7 +16,7 @@ var ItemsTableDragDropZone = React.createClass({
 		items: React.PropTypes.object,
 		list: React.PropTypes.object,
 	},
-	renderPageDrops () {
+	renderPageDrops() {
 		const { items, currentPage, pageSize } = this.props;
 
 		const totalPages = Math.ceil(items.count / pageSize);
@@ -46,7 +46,12 @@ var ItemsTableDragDropZone = React.createClass({
 
 		let cols = this.props.columns.length;
 		if (this.props.list.sortable) cols++;
-		if (!this.props.list.nodelete) cols++;
+
+		let isNoDelete = this.props.list.nodelete;
+		if (this.props.list.key === 'User' && !Keystone.user.canAccessUsers) {
+			isNoDelete = true;
+		}
+		if (!isNoDelete) cols++;
 		return (
 			<tr style={style}>
 				<td colSpan={cols} >
@@ -58,7 +63,7 @@ var ItemsTableDragDropZone = React.createClass({
 			</tr>
 		);
 	},
-	render () {
+	render() {
 		return this.renderPageDrops();
 	},
 });
